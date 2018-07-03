@@ -1,7 +1,4 @@
-get_filename_component(DATA_DIR ${CMAKE_SOURCE_DIR} PATH)
-set(DATA_DIR ${DATA_DIR}/Firmware/cmake/nuttx)
-
-include(${DATA_DIR}/px4_impl_nuttx)
+include(nuttx/px4_impl_nuttx)
 
 px4_nuttx_configure(HWCLASS m4 CONFIG nsh ROMFS y ROMFSROOT px4fmu_common)
 
