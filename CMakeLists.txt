@@ -174,38 +174,39 @@ message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 #=============================================================================
 # git
 #
-#include(common/px4_git)
-#
-#execute_process(
-#	COMMAND git describe --always --tags
-#	OUTPUT_VARIABLE git_tag
-#	OUTPUT_STRIP_TRAILING_WHITESPACE
-#	WORKING_DIRECTORY ${PX4_SOURCE_DIR}
-#	)
-#
-#execute_process(
-#	COMMAND Tools/tag_to_version.py --root ${PX4_SOURCE_DIR}
-#	OUTPUT_VARIABLE git_version
-#	WORKING_DIRECTORY ${PX4_SOURCE_DIR}
-#	)
-#px4_add_git_submodule(TARGET git_cmake_hexagon PATH "cmake/cmake_hexagon")
-#px4_add_git_submodule(TARGET git_driverframework PATH "src/lib/DriverFramework")
-#px4_add_git_submodule(TARGET git_ecl PATH "src/lib/ecl")
-#px4_add_git_submodule(TARGET git_gazebo PATH "Tools/sitl_gazebo")
-#px4_add_git_submodule(TARGET git_gazebo_flow PATH "Tools/sitl_gazebo/external/OpticalFlow")
-#px4_add_git_submodule(TARGET git_gazebo_klt PATH "Tools/sitl_gazebo/external/OpticalFlow/external/klt_feature_tracker")
-#px4_add_git_submodule(TARGET git_gencpp PATH "Tools/gencpp")
-#px4_add_git_submodule(TARGET git_genmsg PATH "Tools/genmsg")
-#px4_add_git_submodule(TARGET git_gps_devices PATH "src/drivers/gps/devices")
-#px4_add_git_submodule(TARGET git_jmavsim PATH "Tools/jMAVSim")
-#px4_add_git_submodule(TARGET git_matrix PATH "src/lib/matrix")
-#px4_add_git_submodule(TARGET git_mavlink PATH "mavlink/include/mavlink/v1.0")
-#px4_add_git_submodule(TARGET git_mavlink2 PATH "mavlink/include/mavlink/v2.0")
-#px4_add_git_submodule(TARGET git_nuttx PATH "NuttX")
-#px4_add_git_submodule(TARGET git_uavcan PATH "src/modules/uavcan/libuavcan")
-#px4_add_git_submodule(TARGET git_micro_cdr PATH "src/lib/micro-CDR")
-#
-#px4_create_git_hash_header()
+include(common/px4_git)
+
+execute_process(
+	COMMAND git describe --always --tags
+	OUTPUT_VARIABLE git_tag
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+	WORKING_DIRECTORY ${PX4_SOURCE_DIR}
+	)
+
+execute_process(
+	COMMAND Tools/tag_to_version.py --root ${PX4_SOURCE_DIR}
+	OUTPUT_VARIABLE git_version
+	WORKING_DIRECTORY ${PX4_SOURCE_DIR}
+	)
+
+px4_add_git_submodule(TARGET git_cmake_hexagon PATH "cmake/cmake_hexagon")
+px4_add_git_submodule(TARGET git_driverframework PATH "src/lib/DriverFramework")
+px4_add_git_submodule(TARGET git_ecl PATH "src/lib/ecl")
+px4_add_git_submodule(TARGET git_gazebo PATH "Tools/sitl_gazebo")
+px4_add_git_submodule(TARGET git_gazebo_flow PATH "Tools/sitl_gazebo/external/OpticalFlow")
+px4_add_git_submodule(TARGET git_gazebo_klt PATH "Tools/sitl_gazebo/external/OpticalFlow/external/klt_feature_tracker")
+px4_add_git_submodule(TARGET git_gencpp PATH "Tools/gencpp")
+px4_add_git_submodule(TARGET git_genmsg PATH "Tools/genmsg")
+px4_add_git_submodule(TARGET git_gps_devices PATH "src/drivers/gps/devices")
+px4_add_git_submodule(TARGET git_jmavsim PATH "Tools/jMAVSim")
+px4_add_git_submodule(TARGET git_matrix PATH "src/lib/matrix")
+px4_add_git_submodule(TARGET git_mavlink PATH "mavlink/include/mavlink/v1.0")
+px4_add_git_submodule(TARGET git_mavlink2 PATH "mavlink/include/mavlink/v2.0")
+px4_add_git_submodule(TARGET git_nuttx PATH "NuttX")
+px4_add_git_submodule(TARGET git_uavcan PATH "src/modules/uavcan/libuavcan")
+px4_add_git_submodule(TARGET git_micro_cdr PATH "src/lib/micro-CDR")
+
+px4_create_git_hash_header()
 
 #=============================================================================
 
