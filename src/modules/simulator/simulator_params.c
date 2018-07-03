@@ -38,7 +38,7 @@
  *
  * @author Mohamed Abdelkader <mohamedashraf123@gmail.com>
  */
-#include <parameters/param.h>
+#include <systemlib/param/param.h>
 
 /**
  * Simulator UDP port

@@ -33,14 +33,17 @@
 
 px4_add_module(
 	MODULE modules__uavcanesc__commands__stat
-	MAIN stat
+	MAIN cfg
 	STACK_MAIN 1024
 	COMPILE_FLAGS
 		-Wno-deprecated-declarations
 		-O3
 	SRCS
-		esc_stat.cpp
+	 esc_stat.cpp
+
 	DEPENDS
+		platforms__common
+
 	)
 
-#
+## vim: set noet ft=cmake fenc=utf-8 ff=unix :

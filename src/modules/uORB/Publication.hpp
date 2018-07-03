@@ -81,6 +81,7 @@ protected:
 	const struct orb_metadata *_meta;
 	const int _priority;
 
+	int _instance{0};
 	orb_advert_t _handle{nullptr};
 };
 

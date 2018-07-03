@@ -48,7 +48,7 @@
 
 __EXPORT int usb_connected_main(int argc, char *argv[]);
 
-static void print_usage(void)
+static void print_usage()
 {
 
 	PRINT_MODULE_DESCRIPTION("Utility to check if USB is connected. Was previously used in startup scripts.\n"
@@ -66,5 +66,5 @@ usb_connected_main(int argc, char *argv[])
 		return 0;
 	}
 
-	return board_read_VBUS_state();
+	return px4_arch_gpioread(GPIO_OTGFS_VBUS) ? 0 : 1;
 }

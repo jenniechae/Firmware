@@ -42,17 +42,13 @@ set(srcs
 	test_float.cpp
 	test_gpio.c
 	test_hott_telemetry.c
-	test_hrt.cpp
+	test_hrt.c
 	test_hysteresis.cpp
 	test_int.cpp
 	test_jig_voltages.c
 	test_led.c
 	test_mathlib.cpp
 	test_matrix.cpp
-	test_microbench_hrt.cpp
-	test_microbench_math.cpp
-	test_microbench_matrix.cpp
-	test_microbench_uorb.cpp
 	test_mixer.cpp
 	test_mount.c
 	test_param.c
@@ -67,8 +63,6 @@ set(srcs
 	test_uart_console.c
 	test_uart_loopback.c
 	test_uart_send.c
-	test_versioning.cpp
-	test_smooth_z.cpp
 	tests_main.c
 	)
 
@@ -91,12 +85,8 @@ px4_add_module(
 		-Wno-missing-declarations
 		-Wno-double-promotion
 		-Wno-unknown-warning-option
-		-Wno-unused-but-set-variable
-	SRCS
-		${srcs}
+	SRCS ${srcs}
 	DEPENDS
-		modules__mc_pos_control__mc_pos_control_tests
-		git_ecl
-		ecl_geo_lookup # TODO: move this
-		pwm_limit
+		platforms__common
 	)
+# vim: set noet ft=cmake fenc=utf-8 ff=unix :

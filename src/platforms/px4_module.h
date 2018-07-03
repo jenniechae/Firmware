@@ -149,9 +149,8 @@ public:
 	 * @param argc start argument(s)
 	 * @param argv start argument(s)
 	 */
-	static int run_trampoline(int argc, char *argv[])
+	static void run_trampoline(int argc, char *argv[])
 	{
-		int ret = 0;
 
 #ifdef __PX4_NUTTX
 		// on NuttX task_create() adds the task name as first argument
@@ -167,12 +166,9 @@ public:
 
 		} else {
 			PX4_ERR("failed to instantiate object");
-			ret = -1;
 		}
 
 		exit_and_cleanup();
-
-		return ret;
 	}
 
 	/**
@@ -407,7 +403,7 @@ __EXPORT void PRINT_MODULE_DESCRIPTION(const char *description);
 /**
  * Print the command name
  * @param executable_name: command name used in scripts & CLI
- * @param category one of: driver, estimator, controller, system, communication, command, template
+ * @param category one of: driver, estimator, controller, system, communication, command
  */
 __EXPORT void PRINT_MODULE_USAGE_NAME(const char *executable_name, const char *category);
 

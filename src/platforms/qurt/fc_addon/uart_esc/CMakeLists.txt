@@ -41,18 +41,30 @@ else()
 	set(FC_ADDON $ENV{FC_ADDON})
 endif()
 
-add_library(uart_esc SHARED IMPORTED GLOBAL)
-set_target_properties(uart_esc PROPERTIES IMPORTED_LOCATION ${FC_ADDON}/flight_controller/hexagon/libs/libuart_esc.so)
+include_directories(
+	${FC_ADDON}/flight_controller/hexagon/inc
+	)
+
+add_library(libuart_esc SHARED IMPORTED GLOBAL)
+set_target_properties(libuart_esc PROPERTIES IMPORTED_LOCATION ${FC_ADDON}/flight_controller/hexagon/libs/libuart_esc.so)
 
 px4_add_module(
-	MODULE platforms__qurt__fc_addon__uart_esc
-	MAIN uart_esc
+        MODULE platforms__qurt__fc_addon__uart_esc
+        MAIN uart_esc
 	STACK_MAIN 1200
-	INCLUDES
-		${FC_ADDON}/flight_controller/hexagon/inc
-	SRCS
-		uart_esc_main.cpp
+        COMPILE_FLAGS
+        SRCS
+                uart_esc_main.cpp
 		uart_esc_params.c
-	DEPENDS
+
+        DEPENDS
+                platforms__common
+        )
+
+set(module_external_libraries
+	${module_external_libraries}
+	libuart_esc
+	CACHE INTERNAL "module_external_libraries"
 	)
-target_link_libraries(platforms__qurt__fc_addon__uart_esc PRIVATE uart_esc)
+
+# vim: set noet ft=cmake fenc=utf-8 ff=unix :

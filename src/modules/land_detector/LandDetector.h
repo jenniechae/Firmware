@@ -45,10 +45,9 @@
 #include <px4_workqueue.h>
 #include <px4_module.h>
 #include <systemlib/hysteresis/hysteresis.h>
-#include <parameters/param.h>
-#include <perf/perf_counter.h>
+#include <systemlib/param/param.h>
+#include <systemlib/perf_counter.h>
 #include <uORB/uORB.h>
-#include <uORB/topics/actuator_armed.h>
 #include <uORB/topics/vehicle_land_detected.h>
 
 namespace land_detector
@@ -120,17 +119,17 @@ protected:
 	/**
 	 * @return true if UAV is in almost landed state
 	 */
-	virtual bool _get_maybe_landed_state() { return false; }
+	virtual bool _get_maybe_landed_state() = 0;
 
 	/**
 	 * @return true if UAV is touching ground but not landed
 	 */
-	virtual bool _get_ground_contact_state() { return false; }
+	virtual bool _get_ground_contact_state()  = 0;
 
 	/**
 	 * @return true if UAV is in free-fall state.
 	 */
-	virtual bool _get_freefall_state() { return false; }
+	virtual bool _get_freefall_state() = 0;
 
 	/**
 	 *  @return maximum altitude that can be reached
@@ -151,7 +150,6 @@ protected:
 	vehicle_land_detected_s _landDetected{};
 
 	int _parameterSub{-1};
-	int _armingSub{-1};
 
 	LandDetectionState _state{LandDetectionState::LANDED};
 
@@ -160,14 +158,12 @@ protected:
 	systemlib::Hysteresis _maybe_landed_hysteresis{true};
 	systemlib::Hysteresis _ground_contact_hysteresis{true};
 
-	struct actuator_armed_s	_arming {};
-
 private:
 	static void _cycle_trampoline(void *arg);
 
 	void _cycle();
 
-	void _check_params(bool force = false);
+	void _check_params(const bool force);
 
 	void _update_state();
 
@@ -179,8 +175,6 @@ private:
 	struct work_s	_work {};
 
 	perf_counter_t	_cycle_perf;
-
-	bool _previous_arming_state{false}; ///< stores the previous _arming.armed state
 };
 
 

@@ -55,6 +55,7 @@
 
 #include <arch/board/board.h>
 
+#include "systemlib/systemlib.h"
 #include "drivers/drv_pwm_output.h"
 
 #include <uORB/topics/actuator_controls.h>
@@ -277,7 +278,7 @@ esc_calib_main(int argc, char *argv[])
 
 	if (ret != OK) {
 		PX4_ERR("PWM_SERVO_GET_COUNT");
-		goto cleanup;
+		return 1;
 	}
 
 	/* tell IO/FMU that its ok to disable its safety with the switch */
@@ -285,7 +286,7 @@ esc_calib_main(int argc, char *argv[])
 
 	if (ret != OK) {
 		PX4_ERR("PWM_SERVO_SET_ARM_OK");
-		goto cleanup;
+		return 1;
 	}
 
 	/* tell IO/FMU that the system is armed (it will output values if safety is off) */
@@ -293,7 +294,7 @@ esc_calib_main(int argc, char *argv[])
 
 	if (ret != OK) {
 		PX4_ERR("PWM_SERVO_ARM");
-		goto cleanup;
+		return 1;
 	}
 
 	printf("Outputs armed");

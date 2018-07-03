@@ -64,10 +64,10 @@ def main():
                              " (default FILENAME: airframes.xml)")
     parser.add_argument("-m", "--markdown",
                         nargs='?',
-                        const="airframes.md",
+                        const="airframe_reference.md",
                         metavar="FILENAME",
                         help="Create Markdown file"
-                             " (default FILENAME: airframes.md)")
+                             " (default FILENAME: airframes_reference.md)")
     default_image_path = '../../assets/airframes/types'
     parser.add_argument("-i", "--image-path",
                         default=default_image_path,

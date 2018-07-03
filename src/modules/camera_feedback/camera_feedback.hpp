@@ -45,8 +45,9 @@
 #include <stdbool.h>
 #include <poll.h>
 #include <mathlib/mathlib.h>
+#include <systemlib/systemlib.h>
 #include <systemlib/err.h>
-#include <parameters/param.h>
+#include <systemlib/param/param.h>
 
 #include <px4_config.h>
 #include <px4_defines.h>
@@ -61,7 +62,7 @@
 #include <uORB/topics/vehicle_local_position.h>
 #include <uORB/topics/vehicle_global_position.h>
 
-typedef enum : int32_t {
+typedef enum : uint8_t {
 	CAMERA_FEEDBACK_MODE_NONE = 0,
 	CAMERA_FEEDBACK_MODE_TRIGGER,
 	CAMERA_FEEDBACK_MODE_PWM

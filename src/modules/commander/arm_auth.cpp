@@ -66,7 +66,7 @@ struct packed_struct {
 	uint8_t authentication_method;
 } arm_parameters;
 
-static uint8_t *system_id;
+static uint32_t *system_id;
 
 static uint8_t _auth_method_arm_req_check();
 static uint8_t _auth_method_two_arm_check();
@@ -179,11 +179,9 @@ uint8_t arm_auth_check()
 	return vehicle_command_ack_s::VEHICLE_RESULT_DENIED;
 }
 
-void arm_auth_update(hrt_abstime now, bool param_update)
+void arm_auth_update(hrt_abstime now)
 {
-	if (param_update) {
-		param_get(param_arm_parameters, (int32_t*)&arm_parameters);
-	}
+	param_get(param_arm_parameters, &arm_parameters);
 
 	switch (state) {
 	case ARM_AUTH_WAITING_AUTH:
@@ -262,7 +260,7 @@ void arm_auth_update(hrt_abstime now, bool param_update)
 	}
 }
 
-void arm_auth_init(orb_advert_t *mav_log_pub, uint8_t *sys_id)
+void arm_auth_init(orb_advert_t *mav_log_pub, uint32_t *sys_id)
 {
 	system_id = sys_id;
 	param_arm_parameters = param_find("COM_ARM_AUTH");

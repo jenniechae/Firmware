@@ -52,8 +52,9 @@
 #include <ctype.h>
 
 
-#include <perf/perf_counter.h>
+#include <systemlib/perf_counter.h>
 #include <systemlib/err.h>
+#include <systemlib/systemlib.h>
 #include <systemlib/px4_macros.h>
 
 #include <drivers/drv_pwm_output.h>
@@ -146,14 +147,14 @@ static void led_pwm_timer_init_timer(unsigned timer)
 
 	/* If the timer clock source provided as clock_freq is the STM32_APBx_TIMx_CLKIN
 	 * then configure the timer to free-run at 1MHz.
-	 * Otherwise, other frequencies are attainable by adjusting .clock_freq accordingly.
+	 * Otherwize, other frequencies are attainable by adjusting .clock_freq accordingly.
 	 */
 
 	rPSC(timer) = (led_pwm_timers[timer].clock_freq / 1000000) - 1;
 
 	/* configure the timer to update at the desired rate */
 
-	rARR(timer) = (1000000 / LED_PWM_RATE) - 1;
+	rARR(timer) = 1000000 / LED_PWM_RATE;
 
 	/* generate an update event; reloads the counter and all registers */
 	rEGR(timer) = GTIM_EGR_UG;

@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2015-2018 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2015 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,8 +34,9 @@
 /**
  * Invert direction of aux output channel 1
  *
- * Enable to invert the channel.
+ * Set to 1 to invert the channel, 0 for default direction.
  *
+ * @reboot_required true
  * @boolean
  * @group PWM Outputs
  */
@@ -44,8 +45,9 @@ PARAM_DEFINE_INT32(PWM_AUX_REV1, 0);
 /**
  * Invert direction of aux output channel 2
  *
- * Enable to invert the channel.
+ * Set to 1 to invert the channel, 0 for default direction.
  *
+ * @reboot_required true
  * @boolean
  * @group PWM Outputs
  */
@@ -54,8 +56,9 @@ PARAM_DEFINE_INT32(PWM_AUX_REV2, 0);
 /**
  * Invert direction of aux output channel 3
  *
- * Enable to invert the channel.
+ * Set to 1 to invert the channel, 0 for default direction.
  *
+ * @reboot_required true
  * @boolean
  * @group PWM Outputs
  */
@@ -64,8 +67,9 @@ PARAM_DEFINE_INT32(PWM_AUX_REV3, 0);
 /**
  * Invert direction of aux output channel 4
  *
- * Enable to invert the channel.
+ * Set to 1 to invert the channel, 0 for default direction.
  *
+ * @reboot_required true
  * @boolean
  * @group PWM Outputs
  */
@@ -74,8 +78,9 @@ PARAM_DEFINE_INT32(PWM_AUX_REV4, 0);
 /**
  * Invert direction of aux output channel 5
  *
- * Enable to invert the channel.
+ * Set to 1 to invert the channel, 0 for default direction.
  *
+ * @reboot_required true
  * @boolean
  * @group PWM Outputs
  */
@@ -84,8 +89,9 @@ PARAM_DEFINE_INT32(PWM_AUX_REV5, 0);
 /**
  * Invert direction of aux output channel 6
  *
- * Enable to invert the channel.
+ * Set to 1 to invert the channel, 0 for default direction.
  *
+ * @reboot_required true
  * @boolean
  * @group PWM Outputs
  */
@@ -189,26 +195,6 @@ PARAM_DEFINE_FLOAT(THR_MDL_FAC, 0.0f);
  * @group PWM Outputs
  */
 PARAM_DEFINE_FLOAT(MOT_SLEW_MAX, 0.0f);
-
-/**
- * Motor Ordering
- *
- * Determines the motor ordering. This can be used for example in combination with
- * a 4-in-1 ESC that assumes a motor ordering which is different from PX4.
- *
- * ONLY supported for Quads.
- * ONLY supported for fmu output (Pixracer or Omnibus F4).
- *
- * When changing this, make sure to test the motor response without props first.
- *
- * @value 0 PX4
- * @value 1 Betaflight / Cleanflight
- *
- * @min 0
- * @max 1
- * @group PWM Outputs
- */
-PARAM_DEFINE_INT32(MOT_ORDERING, 0);
 
 /**
  * Run the FMU as a task to reduce latency

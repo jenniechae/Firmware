@@ -42,14 +42,11 @@
 
 #pragma once
 
-#include <drivers/drv_hrt.h>
+#include <uORB/topics/control_state.h>
+#include <uORB/topics/actuator_armed.h>
 #include <uORB/topics/airspeed.h>
-#include <uORB/topics/sensor_bias.h>
-#include <uORB/topics/vehicle_local_position.h>
 
 #include "LandDetector.h"
-
-using namespace time_literals;
 
 namespace land_detector
 {
@@ -63,37 +60,38 @@ protected:
 	void _initialize_topics() override;
 	void _update_params() override;
 	void _update_topics() override;
-
 	bool _get_landed_state() override;
+	bool _get_maybe_landed_state() override;
+	bool _get_ground_contact_state() override;
+	bool _get_freefall_state() override;
 	float _get_max_altitude() override;
 
 private:
 
 	/** Time in us that landing conditions have to hold before triggering a land. */
-	static constexpr hrt_abstime LANDED_TRIGGER_TIME_US = 2_s;
-	static constexpr hrt_abstime FLYING_TRIGGER_TIME_US = 0_us;
+	static constexpr uint64_t LAND_DETECTOR_TRIGGER_TIME_US = 1500000;
 
 	struct {
 		param_t maxVelocity;
 		param_t maxClimbRate;
 		param_t maxAirSpeed;
-		param_t maxXYAccel;
+		param_t maxIntVelocity;
 	} _paramHandle{};
 
 	struct {
 		float maxVelocity;
 		float maxClimbRate;
 		float maxAirSpeed;
-		float maxXYAccel;
+		float maxIntVelocity;
 	} _params{};
 
+	int _controlStateSub{-1};
+	int _armingSub{-1};
 	int _airspeedSub{-1};
-	int _sensor_bias_sub{-1};
-	int _local_pos_sub{-1};
 
+	control_state_s _controlState{};
+	actuator_armed_s _arming{};
 	airspeed_s _airspeed{};
-	sensor_bias_s _sensors{};
-	vehicle_local_position_s _local_pos{};
 
 	float _velocity_xy_filtered{0.0f};
 	float _velocity_z_filtered{0.0f};

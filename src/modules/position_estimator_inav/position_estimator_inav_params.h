@@ -39,9 +39,7 @@
  * Parameters definition for position_estimator_inav
  */
 
-#pragma once
-
-#include <parameters/param.h>
+#include <systemlib/param/param.h>
 
 struct position_estimator_inav_params {
 	float w_z_baro;

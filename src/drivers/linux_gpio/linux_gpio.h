@@ -41,7 +41,6 @@
  * @author Nicolae Rosia <nicolae.rosia@gmail.com>
  */
 
-#pragma once
 
 class LinuxGPIO
 {

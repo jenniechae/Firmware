@@ -38,8 +38,6 @@
  * @author Thomas Gubler <thomasgubler@gmail.com>
 */
 
-#pragma once
-
 #include "ros/ros.h"
 #include <px4/manual_control_setpoint.h>
 #include <sensor_msgs/Joy.h>

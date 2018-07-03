@@ -36,8 +36,6 @@
 
 #include "drv_deck.h"
 
-#include <cstring>
-
 
 SyslinkMemory::SyslinkMemory(Syslink *link) :
 	CDev("SyslinkMemory", DECK_DEVICE_PATH),

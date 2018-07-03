@@ -60,7 +60,7 @@
 #include <drivers/drv_hrt.h>
 
 #include "dataman.h"
-#include <parameters/param.h>
+#include <systemlib/param/param.h>
 
 #if defined(FLASH_BASED_DATAMAN)
 #include <nuttx/clock.h>
@@ -114,7 +114,7 @@ typedef struct dm_operations_t {
 	int (*wait)(px4_sem_t *sem);
 } dm_operations_t;
 
-static constexpr dm_operations_t dm_file_operations = {
+static dm_operations_t dm_file_operations = {
 	.write   = _file_write,
 	.read    = _file_read,
 	.clear   = _file_clear,
@@ -124,7 +124,7 @@ static constexpr dm_operations_t dm_file_operations = {
 	.wait = px4_sem_wait,
 };
 
-static constexpr dm_operations_t dm_ram_operations = {
+static dm_operations_t dm_ram_operations = {
 	.write   = _ram_write,
 	.read    = _ram_read,
 	.clear   = _ram_clear,
@@ -135,7 +135,7 @@ static constexpr dm_operations_t dm_ram_operations = {
 };
 
 #if defined(FLASH_BASED_DATAMAN)
-static constexpr dm_operations_t dm_ram_flash_operations = {
+static dm_operations_t dm_ram_flash_operations = {
 	.write   = _ram_flash_write,
 	.read    = _ram_flash_read,
 	.clear   = _ram_flash_clear,
@@ -146,7 +146,7 @@ static constexpr dm_operations_t dm_ram_flash_operations = {
 };
 #endif
 
-static const dm_operations_t *g_dm_ops;
+static dm_operations_t *g_dm_ops;
 
 static struct {
 	union {
@@ -227,7 +227,7 @@ static const unsigned g_per_item_max_index[DM_KEY_NUM_KEYS] = {
 #define DM_SECTOR_HDR_SIZE 4	/* data manager per item header overhead */
 
 /* Table of the len of each item type */
-static constexpr size_t g_per_item_size[DM_KEY_NUM_KEYS] = {
+static const unsigned g_per_item_size[DM_KEY_NUM_KEYS] = {
 	sizeof(struct mission_save_point_s) + DM_SECTOR_HDR_SIZE,
 	sizeof(struct mission_fence_point_s) + DM_SECTOR_HDR_SIZE,
 	sizeof(struct mission_item_s) + DM_SECTOR_HDR_SIZE,
@@ -470,7 +470,7 @@ static ssize_t _ram_write(dm_item_t item, unsigned index, dm_persitence_t persis
 	}
 
 	/* Make sure caller has not given us more data than we can handle */
-	if (count > (g_per_item_size[item] - DM_SECTOR_HDR_SIZE)) {
+	if (count > g_per_item_size[item]) {
 		return -E2BIG;
 	}
 
@@ -511,7 +511,7 @@ _file_write(dm_item_t item, unsigned index, dm_persitence_t persistence, const v
 	}
 
 	/* Make sure caller has not given us more data than we can handle */
-	if (count > (g_per_item_size[item] - DM_SECTOR_HDR_SIZE)) {
+	if (count > g_per_item_size[item]) {
 		return -E2BIG;
 	}
 
@@ -581,7 +581,7 @@ static ssize_t _ram_read(dm_item_t item, unsigned index, void *buf, size_t count
 	}
 
 	/* Make sure the caller hasn't asked for more data than we can handle */
-	if (count > (g_per_item_size[item] - DM_SECTOR_HDR_SIZE)) {
+	if (count > g_per_item_size[item]) {
 		return -E2BIG;
 	}
 
@@ -612,14 +612,11 @@ static ssize_t _ram_read(dm_item_t item, unsigned index, void *buf, size_t count
 static ssize_t
 _file_read(dm_item_t item, unsigned index, void *buf, size_t count)
 {
-	if (item >= DM_KEY_NUM_KEYS) {
-		return -1;
-	}
-
 	unsigned char buffer[g_per_item_size[item]];
+	int len, offset;
 
 	/* Get the offset for this item */
-	int offset = calculate_offset(item, index);
+	offset = calculate_offset(item, index);
 
 	/* If item type or index out of range, return error */
 	if (offset < 0) {
@@ -627,12 +624,12 @@ _file_read(dm_item_t item, unsigned index, void *buf, size_t count)
 	}
 
 	/* Make sure the caller hasn't asked for more data than we can handle */
-	if (count > (g_per_item_size[item] - DM_SECTOR_HDR_SIZE)) {
+	if (count > g_per_item_size[item]) {
 		return -E2BIG;
 	}
 
 	/* Read the prefix and data */
-	int len = -1;
+	len = -1;
 
 	if (lseek(dm_operations_data.file.fd, offset, SEEK_SET) == offset) {
 		len = read(dm_operations_data.file.fd, buffer, count + DM_SECTOR_HDR_SIZE);
@@ -808,7 +805,7 @@ static int  _ram_restart(dm_reset_reason reason)
 static int
 _file_restart(dm_reset_reason reason)
 {
-	int offset = 0;
+	unsigned offset = 0;
 	int result = 0;
 	/* We need to scan the entire file and invalidate and data that should not persist after the last reset */
 
@@ -1031,7 +1028,7 @@ _ram_flash_flush()
 		return;
 	}
 
-	const ssize_t len = (dm_operations_data.ram_flash.data_end - dm_operations_data.ram_flash.data) + 1;
+	const size_t len = (dm_operations_data.ram_flash.data_end - dm_operations_data.ram_flash.data) + 1;
 	ret = up_progmem_write(k_dataman_flash_sector->address, dm_operations_data.ram_flash.data, len);
 
 	if (ret < len) {

@@ -38,8 +38,6 @@
  * @author Mark Charlebois <mcharleb@gmail.com>
  */
 #include "hello_example.h"
-
-#include <px4_log.h>
 #include <px4_app.h>
 #include <px4_tasks.h>
 #include <stdio.h>
@@ -48,7 +46,7 @@
 
 #define SCHED_DEFAULT	SCHED_FIFO
 #define SCHED_PRIORITY_MAX sched_get_priority_max(SCHED_FIFO)
-//#define SCHED_PRIORITY_DEFAULT sched_get_priority_max(SCHED_FIFO)
+#define SCHED_PRIORITY_DEFAULT sched_get_priority_max(SCHED_FIFO)
 
 static int daemon_task;             /* Handle of deamon task / thread */
 
@@ -76,7 +74,7 @@ int hello_main(int argc, char *argv[])
 						 SCHED_PRIORITY_MAX - 5,
 						 2000,
 						 PX4_MAIN,
-						 (argv) ? (char *const *)&argv[2] : (char *const *)nullptr);
+						 (argv) ? (char *const *)&argv[2] : (char *const *)NULL);
 
 		return 0;
 	}

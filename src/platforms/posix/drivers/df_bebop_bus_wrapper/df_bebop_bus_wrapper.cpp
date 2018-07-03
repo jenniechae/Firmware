@@ -53,8 +53,8 @@
 #include <uORB/topics/battery_status.h>
 #include <uORB/topics/esc_status.h>
 
-#include <lib/mixer/mixer.h>
-#include <battery/battery.h>
+#include <systemlib/mixer/mixer.h>
+#include <systemlib/battery.h>
 
 #include <bebop_bus/BebopBus.hpp>
 #include <DevMgr.hpp>
@@ -377,7 +377,9 @@ void task_main(int argc, char *argv[])
 
 			if (_mixers != nullptr) {
 				/* do mixing */
-				_outputs.noutputs = _mixers->mix(_outputs.output, 4);
+				_outputs.noutputs = _mixers->mix(_outputs.output,
+								 4,
+								 NULL);
 			}
 
 			// Set last throttle for battery calculations

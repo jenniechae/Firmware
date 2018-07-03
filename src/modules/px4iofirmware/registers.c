@@ -1,6 +1,6 @@
 /****************************************************************************
  *
- *   Copyright (c) 2012-2017 PX4 Development Team. All rights reserved.
+ *   Copyright (c) 2012-2014, 2017 PX4 Development Team. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,8 +35,6 @@
  * @file registers.c
  *
  * Implementation of the PX4IO register space.
- *
- * @author Lorenz Meier <lorenz@px4.io>
  */
 
 #include <px4_config.h>
@@ -47,6 +45,7 @@
 
 #include <drivers/drv_hrt.h>
 #include <drivers/drv_pwm_output.h>
+#include <systemlib/systemlib.h>
 #include <stm32_pwr.h>
 #include <rc/dsm.h>
 #include <rc/sbus.h>
@@ -85,6 +84,8 @@ volatile uint16_t	r_page_status[] = {
 	[PX4IO_P_STATUS_CPULOAD]		= 0,
 	[PX4IO_P_STATUS_FLAGS]			= 0,
 	[PX4IO_P_STATUS_ALARMS]			= 0,
+	[PX4IO_P_STATUS_VBATT]			= 0,
+	[PX4IO_P_STATUS_IBATT]			= 0,
 	[PX4IO_P_STATUS_VSERVO]			= 0,
 	[PX4IO_P_STATUS_VRSSI]			= 0,
 	[PX4IO_P_STATUS_PRSSI]			= 0,
@@ -177,7 +178,6 @@ volatile uint16_t	r_page_setup[] = {
 	[PX4IO_P_SETUP_SCALE_PITCH] = 10000,
 	[PX4IO_P_SETUP_SCALE_YAW] = 10000,
 	[PX4IO_P_SETUP_MOTOR_SLEW_MAX] = 0,
-	[PX4IO_P_SETUP_AIRMODE] = 0,
 	[PX4IO_P_SETUP_THR_MDL_FAC] = 0,
 	[PX4IO_P_SETUP_THERMAL] = PX4IO_THERMAL_IGNORE
 };
@@ -635,6 +635,10 @@ registers_set_one(uint8_t page, uint8_t offset, uint16_t value)
 			pwm_configure_rates(r_setup_pwm_rates, r_setup_pwm_defaultrate, value);
 			break;
 
+		case PX4IO_P_SETUP_VBATT_SCALE:
+			r_page_setup[PX4IO_P_SETUP_VBATT_SCALE] = value;
+			break;
+
 		case PX4IO_P_SETUP_SET_DEBUG:
 			r_page_setup[PX4IO_P_SETUP_SET_DEBUG] = value;
 			isr_debug(0, "set debug %u\n", (unsigned)r_page_setup[PX4IO_P_SETUP_SET_DEBUG]);
@@ -702,10 +706,6 @@ registers_set_one(uint8_t page, uint8_t offset, uint16_t value)
 		case PX4IO_P_SETUP_SBUS_RATE:
 			r_page_setup[offset] = value;
 			sbus1_set_output_rate_hz(value);
-			break;
-
-		case PX4IO_P_SETUP_AIRMODE:
-			r_page_setup[PX4IO_P_SETUP_AIRMODE] = value;
 			break;
 
 		case PX4IO_P_SETUP_THR_MDL_FAC:

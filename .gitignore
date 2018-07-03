@@ -1,3 +1,8 @@
+*.d
+!ROMFS/*/*.d
+!ROMFS/*/*/*.d
+!ROMFS/*/*/*/*.d
+*.px4log
 *.dSYM
 *.o
 *.gch
@@ -12,6 +17,8 @@
 .settings
 .swp
 .~lock.*
+Archives/*
+Build/*
 Testing/
 Packages/*
 s3deploy-branch/
@@ -55,19 +62,27 @@ GTAGS
 *.creator.user
 *.files
 *.includes
+src/modules/micrortps_bridge/micrortps_agent/
+src/modules/micrortps_bridge/micrortps_listener/
+
+# uavcan firmware
+ROMFS/px4fmu_common/uavcan/
+vectorcontrol/
+
 
 # CLion ignores
 .idea
 cmake-build-*/
 
-.vscode
-
 posix-configs/SITL/init/test/*_generated
 
-/airframes.md
-/airframes.xml
-/parameters.md
-/parameters.xml
+parameters.md
+airframes.md
+airframes.xml
 /modules
 
-*.gcov
+cppcheck-result.xml
+cppcheck
+
+scan-build
+

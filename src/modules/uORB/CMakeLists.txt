@@ -32,20 +32,29 @@
 ############################################################################
 
 # this includes the generated topics directory
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(
+	${CMAKE_CURRENT_BINARY_DIR}
+	)
+
+link_libraries(msg_gen)
+
+set(SRCS
+	uORBUtils.cpp
+	uORB.cpp
+	uORBMain.cpp
+	Publication.cpp
+	Subscription.cpp
+	uORBManager.cpp
+	uORBDevices.cpp
+	)
 
 px4_add_module(
 	MODULE modules__uORB
 	MAIN uorb
 	STACK_MAIN 2100
-	SRCS
-		Publication.cpp
-		Subscription.cpp
-		uORB.cpp
-		uORBDevices.cpp
-		uORBMain.cpp
-		uORBManager.cpp
-		uORBUtils.cpp
+	COMPILE_FLAGS
+	SRCS ${SRCS}
 	DEPENDS
-		uorb_msgs
+		platforms__common
 	)
+# vim: set noet ft=cmake fenc=utf-8 ff=unix :

@@ -74,22 +74,24 @@ PARAM_DEFINE_FLOAT(MPC_THR_HOVER, 0.5f);
 /**
  * Maximum thrust in auto thrust control
  *
- * Limit max allowed thrust
+ * Limit max allowed thrust. Setting a value of one can put
+ * the system into actuator saturation as no spread between
+ * the motors is possible any more. A value of 0.8 - 0.9
+ * is recommended.
  *
  * @unit norm
  * @min 0.0
- * @max 1.0
+ * @max 0.95
  * @decimal 2
  * @increment 0.01
  * @group Multicopter Position Control
  */
-PARAM_DEFINE_FLOAT(MPC_THR_MAX, 1.0f);
+PARAM_DEFINE_FLOAT(MPC_THR_MAX, 0.9f);
 
 /**
  * Minimum manual thrust
  *
  * Minimum vertical thrust. It's recommended to set it > 0 to avoid free fall with zero thrust.
- * With MC_AIRMODE set to 1, this can safely be set to 0.
  *
  * @unit norm
  * @min 0.0
@@ -103,7 +105,10 @@ PARAM_DEFINE_FLOAT(MPC_MANTHR_MIN, 0.08f);
 /**
  * Maximum manual thrust
  *
- * Limit max allowed thrust for Manual mode.
+ * Limit max allowed thrust. Setting a value of one can put
+ * the system into actuator saturation as no spread between
+ * the motors is possible any more. A value of 0.8 - 0.9
+ * is recommended.
  *
  * @unit norm
  * @min 0.0
@@ -112,7 +117,7 @@ PARAM_DEFINE_FLOAT(MPC_MANTHR_MIN, 0.08f);
  * @increment 0.01
  * @group Multicopter Position Control
  */
-PARAM_DEFINE_FLOAT(MPC_MANTHR_MAX, 1.0f);
+PARAM_DEFINE_FLOAT(MPC_MANTHR_MAX, 0.9f);
 
 /**
  * Proportional gain for vertical position error
@@ -248,7 +253,7 @@ PARAM_DEFINE_FLOAT(MPC_XY_CRUISE, 5.0f);
  *
  * @unit m/s
  * @min 1.0
- * @max 20.0
+ * @max
  * @increment 1
  * @decimal 2
  * @group Multicopter Position Control
@@ -409,7 +414,7 @@ PARAM_DEFINE_FLOAT(MPC_VELD_LP, 5.0f);
 PARAM_DEFINE_FLOAT(MPC_ACC_HOR_MAX, 10.0f);
 
 /**
- * Acceleration for auto and for manual
+ * Maximum horizontal manual acceleration
  *
  * @unit m/s/s
  * @min 2.0
@@ -418,35 +423,7 @@ PARAM_DEFINE_FLOAT(MPC_ACC_HOR_MAX, 10.0f);
  * @decimal 2
  * @group Multicopter Position Control
  */
-
-PARAM_DEFINE_FLOAT(MPC_ACC_HOR, 5.0f);
-
-/**
- * Slow horizontal manual deceleration for manual mode
- *
- * @unit m/s/s
- * @min 0.5
- * @max 10.0
- * @increment 1
- * @decimal 2
- * @group Multicopter Position Control
- */
-PARAM_DEFINE_FLOAT(MPC_DEC_HOR_SLOW, 5.0f);
-
-/**
- * Horizontal acceleration in manual modes when te estimator speed limit is removed.
- * If full stick is being applied and the estimator stops demanding a speed limit,
- * which it had been before (e.g if GPS is gained while flying on optical flow/vision only),
- * the vehicle will accelerate at this rate until the normal position control speed is achieved.
- *
- * @unit m/s/s
- * @min 0.2
- * @max 2.0
- * @increment 0.1
- * @decimal 1
- * @group Multicopter Position Control
- */
-PARAM_DEFINE_FLOAT(MPC_ACC_HOR_ESTM, 0.5f);
+PARAM_DEFINE_FLOAT(MPC_ACC_HOR_MAN, 5.0f);
 
 /**
  * Maximum vertical acceleration in velocity controlled modes upward
@@ -470,45 +447,10 @@ PARAM_DEFINE_FLOAT(MPC_ACC_UP_MAX, 10.0f);
  * @decimal 2
  * @group Multicopter Position Control
  */
-PARAM_DEFINE_FLOAT(MPC_ACC_DOWN_MAX, 10.0f);
+PARAM_DEFINE_FLOAT(MPC_ACC_DOWN_MAX, 5.0f);
 
 /**
- * Maximum jerk in manual controlled mode for BRAKING to zero.
- * If this value is below MPC_JERK_MIN, the acceleration limit in xy and z
- * is MPC_ACC_HOR_MAX and MPC_ACC_UP_MAX respectively instantaneously when the
- * user demands brake (=zero stick input).
- * Otherwise the acceleration limit increases from current acceleration limit
- * towards MPC_ACC_HOR_MAX/MPC_ACC_UP_MAX with jerk limit
- *
- * @unit m/s/s/s
- * @min 0.0
- * @max 15.0
- * @increment 1
- * @decimal 2
- * @group Multicopter Position Control
- */
-PARAM_DEFINE_FLOAT(MPC_JERK_MAX, 0.0f);
-
-/**
- * Minimum jerk in manual controlled mode for BRAKING to zero
- *
- * @unit m/s/s/s
- * @min 0.5
- * @max 10.0
- * @increment 1
- * @decimal 2
- * @group Multicopter Position Control
- */
-PARAM_DEFINE_FLOAT(MPC_JERK_MIN, 1.0f);
-
-/**
- * Altitude control mode.
- *
- * Set to 1 to control height above ground instead of height above origin.
- * Note: If optical flow is being used as the only source of navigation then the height above ground
- * will be selected automatically and maximum height will be limited to the value set by MPC_MAX_FLOW_HGT.
- * Note: The height controller will revert to using height above origin if the distance to ground estimate
- * becomes invalid as indicated by the local_position.distance_bottom_valid message being false.
+ * Altitude control mode, note mode 1 only tested with LPE
  *
  * @min 0
  * @max 1
@@ -591,15 +533,3 @@ PARAM_DEFINE_FLOAT(MPC_LAND_ALT2, 5.0f);
  * @group Multicopter Position Control
  */
 PARAM_DEFINE_FLOAT(MPC_TKO_RAMP_T, 0.4f);
-
-/**
- * Flag to test flight tasks instead of legacy functionality
- * Temporary Parameter during the transition to flight tasks
- *
- * @min 0
- * @max 1
- * @value 0 Legacy Functionality
- * @value 1 Test flight tasks
- * @group Multicopter Position Control
- */
-PARAM_DEFINE_INT32(MPC_FLT_TSK, 0);

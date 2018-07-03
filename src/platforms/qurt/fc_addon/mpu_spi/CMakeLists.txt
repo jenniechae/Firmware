@@ -41,18 +41,29 @@ else()
 	set(FC_ADDON $ENV{FC_ADDON})
 endif()
 
-add_library(mpu9x50 SHARED IMPORTED GLOBAL)
-set_target_properties(mpu9x50 PROPERTIES IMPORTED_LOCATION ${FC_ADDON}/flight_controller/hexagon/libs/libmpu9x50.so)
+add_library(libmpu9x50 SHARED IMPORTED GLOBAL)
+set_target_properties(libmpu9x50 PROPERTIES IMPORTED_LOCATION ${FC_ADDON}/flight_controller/hexagon/libs/libmpu9x50.so)
+
+include_directories(
+	${FC_ADDON}/flight_controller/hexagon/inc
+	)
 
 px4_add_module(
 	MODULE platforms__qurt__fc_addon__mpu_spi
 	MAIN mpu9x50
 	STACK_MAIN 1200
-	INCLUDES
-		${FC_ADDON}/flight_controller/hexagon/inc
+	COMPILE_FLAGS
 	SRCS
 		mpu9x50_main.cpp
 		mpu9x50_params.c
 	DEPENDS
+		platforms__common
 	)
-target_link_libraries(platforms__qurt__fc_addon__mpu_spi PRIVATE mpu9x50)
+
+set(module_external_libraries
+	${module_external_libraries}
+	libmpu9x50
+	CACHE INTERNAL "module_external_libraries"
+	)
+
+# vim: set noet ft=cmake fenc=utf-8 ff=unix :

@@ -64,7 +64,6 @@ int SendEvent::task_spawn(int argc, char *argv[])
 }
 
 SendEvent::SendEvent()
-	: _status_display(_subscriber_handler)
 {
 }
 
@@ -74,8 +73,7 @@ int SendEvent::start()
 		return 0;
 	}
 
-	// subscribe to the topics
-	_subscriber_handler.subscribe();
+	_vehicle_command_sub = orb_subscribe(ORB_ID(vehicle_command));
 
 	// Kick off the cycling. We can call it directly because we're already in the work queue context
 	cycle();
@@ -107,16 +105,16 @@ SendEvent::cycle_trampoline(void *arg)
 void SendEvent::cycle()
 {
 	if (should_exit()) {
-		_subscriber_handler.unsubscribe();
+		if (_vehicle_command_sub >= 0) {
+			orb_unsubscribe(_vehicle_command_sub);
+			_vehicle_command_sub = -1;
+		}
+
 		exit_and_cleanup();
 		return;
 	}
 
-	_subscriber_handler.check_for_updates();
-
 	process_commands();
-
-	_status_display.process();
 
 	work_queue(LPWORK, &_work, (worker_t)&SendEvent::cycle_trampoline, this,
 		   USEC2TICK(SEND_EVENT_INTERVAL_US));
@@ -124,13 +122,16 @@ void SendEvent::cycle()
 
 void SendEvent::process_commands()
 {
-	if (!_subscriber_handler.vehicle_command_updated()) {
+	bool updated;
+	orb_check(_vehicle_command_sub, &updated);
+
+	if (!updated) {
 		return;
 	}
 
 	struct vehicle_command_s cmd;
 
-	orb_copy(ORB_ID(vehicle_command), _subscriber_handler.get_vehicle_command_sub(), &cmd);
+	orb_copy(ORB_ID(vehicle_command), _vehicle_command_sub, &cmd);
 
 	bool got_temperature_calibration_command = false, accel = false, baro = false, gyro = false;
 
@@ -263,8 +264,8 @@ int SendEvent::custom_command(int argc, char *argv[])
 
 		struct vehicle_command_s cmd = {
 			.timestamp = 0,
-			.param5 = ((accel_calib || calib_all) ? vehicle_command_s::PREFLIGHT_CALIBRATION_TEMPERATURE_CALIBRATION : (double)NAN),
-			.param6 = (double)NAN,
+			.param5 = (float)((accel_calib || calib_all) ? vehicle_command_s::PREFLIGHT_CALIBRATION_TEMPERATURE_CALIBRATION : NAN),
+			.param6 = NAN,
 			.param1 = (float)((gyro_calib || calib_all) ? vehicle_command_s::PREFLIGHT_CALIBRATION_TEMPERATURE_CALIBRATION : NAN),
 			.param2 = NAN,
 			.param3 = NAN,

@@ -59,8 +59,9 @@
 #include <nuttx/wqueue.h>
 #include <nuttx/clock.h>
 
-#include <perf/perf_counter.h>
+#include <systemlib/perf_counter.h>
 #include <systemlib/err.h>
+#include <systemlib/systemlib.h>
 
 #include <board_config.h>
 
@@ -320,7 +321,7 @@ OREOLED::cycle()
 				perf_begin(_probe_perf);
 
 				/* set I2C address */
-				set_device_address(OREOLED_BASE_I2C_ADDR + i);
+				set_address(OREOLED_BASE_I2C_ADDR + i);
 
 				/* Calculate XOR CRC and append to the i2c write data */
 				msg[sizeof(msg) - 1] = OREOLED_BASE_I2C_ADDR + i;
@@ -499,7 +500,7 @@ OREOLED::cycle()
 			perf_begin(_call_perf);
 
 			/* set I2C address */
-			set_device_address(OREOLED_BASE_I2C_ADDR + next_cmd.led_num);
+			set_address(OREOLED_BASE_I2C_ADDR + next_cmd.led_num);
 
 			/* Calculate XOR CRC and append to the i2c write data */
 			uint8_t next_cmd_xor = OREOLED_BASE_I2C_ADDR + next_cmd.led_num;
@@ -552,7 +553,7 @@ OREOLED::bootloader_app_reset(int led_num)
 	int ret = -1;
 
 	/* Set the current address */
-	set_device_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
+	set_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
 
 	/* send a reset */
 	boot_cmd.buff[0] = OREOLED_PATTERN_PARAMUPDATE;
@@ -601,7 +602,7 @@ OREOLED::bootloader_app_ping(int led_num)
 	int ret = -1;
 
 	/* Set the current address */
-	set_device_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
+	set_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
 
 	/* send a pattern off command */
 	boot_cmd.buff[0] = 0xAA;
@@ -641,7 +642,7 @@ OREOLED::bootloader_inapp_checksum(int led_num)
 	uint16_t ret = 0x0000;
 
 	/* Set the current address */
-	set_device_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
+	set_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
 
 	boot_cmd.buff[0] = OREOLED_PATTERN_PARAMUPDATE;
 	boot_cmd.buff[1] = OREOLED_PARAM_APP_CHECKSUM;
@@ -701,7 +702,7 @@ OREOLED::bootloader_ping(int led_num)
 	int ret = -1;
 
 	/* Set the current address */
-	set_device_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
+	set_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
 
 	boot_cmd.buff[0] = OREOLED_BOOT_CMD_PING;
 	boot_cmd.buff[1] = OREOLED_BASE_I2C_ADDR + boot_cmd.led_num;
@@ -758,7 +759,7 @@ OREOLED::bootloader_version(int led_num)
 	uint8_t ret = 0x00;
 
 	/* Set the current address */
-	set_device_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
+	set_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
 
 	boot_cmd.buff[0] = OREOLED_BOOT_CMD_BL_VER;
 	boot_cmd.buff[1] = OREOLED_BASE_I2C_ADDR + boot_cmd.led_num;
@@ -814,7 +815,7 @@ OREOLED::bootloader_app_version(int led_num)
 	uint16_t ret = 0x0000;
 
 	/* Set the current address */
-	set_device_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
+	set_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
 
 	boot_cmd.buff[0] = OREOLED_BOOT_CMD_APP_VER;
 	boot_cmd.buff[1] = OREOLED_BASE_I2C_ADDR + boot_cmd.led_num;
@@ -873,7 +874,7 @@ OREOLED::bootloader_app_checksum(int led_num)
 	uint16_t ret = 0x0000;
 
 	/* Set the current address */
-	set_device_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
+	set_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
 
 	boot_cmd.buff[0] = OREOLED_BOOT_CMD_APP_CRC;
 	boot_cmd.buff[1] = OREOLED_BASE_I2C_ADDR + boot_cmd.led_num;
@@ -932,7 +933,7 @@ OREOLED::bootloader_set_colour(int led_num, uint8_t red, uint8_t green)
 	int ret = -1;
 
 	/* Set the current address */
-	set_device_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
+	set_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
 
 	boot_cmd.buff[0] = OREOLED_BOOT_CMD_SET_COLOUR;
 	boot_cmd.buff[1] = red;
@@ -1035,7 +1036,7 @@ OREOLED::bootloader_flash(int led_num)
 	uint8_t flash_pages = ((fw_length + 64 - 1) / 64);
 
 	/* Set the current address */
-	set_device_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
+	set_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
 
 	uint8_t reply[OREOLED_CMD_READ_LENGTH_MAX];
 
@@ -1200,7 +1201,7 @@ OREOLED::bootloader_boot(int led_num)
 	int ret = -1;
 
 	/* Set the current address */
-	set_device_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
+	set_address(OREOLED_BASE_I2C_ADDR + boot_cmd.led_num);
 
 	boot_cmd.buff[0] = OREOLED_BOOT_CMD_BOOT_APP;
 	boot_cmd.buff[1] = OREOLED_BOOT_CMD_BOOT_NONCE;
@@ -1553,7 +1554,7 @@ OREOLED::send_general_call()
 	int ret = -ENODEV;
 
 	/* set I2C address to zero */
-	set_device_address(0);
+	set_address(0);
 
 	/* prepare command : 0x01 = general hardware call, 0x00 = I2C address of master (but we don't act as a slave so set to zero)*/
 	uint8_t msg[] = {0x01, 0x00};
@@ -1578,7 +1579,7 @@ OREOLED::send_cmd(oreoled_cmd_t new_cmd)
 	/* sanity check led number, health and cmd length */
 	if ((new_cmd.led_num < OREOLED_NUM_LEDS) && _healthy[new_cmd.led_num] && (new_cmd.num_bytes < OREOLED_CMD_LENGTH_MAX)) {
 		/* set I2C address */
-		set_device_address(OREOLED_BASE_I2C_ADDR + new_cmd.led_num);
+		set_address(OREOLED_BASE_I2C_ADDR + new_cmd.led_num);
 
 		/* add to queue */
 		_cmd_queue->force(&new_cmd);

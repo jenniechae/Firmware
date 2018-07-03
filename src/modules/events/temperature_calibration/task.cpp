@@ -74,7 +74,7 @@ public:
 	/**
 	 * Destructor
 	 */
-	~TemperatureCalibration() = default;
+	~TemperatureCalibration();
 
 	/**
 	 * Start task.
@@ -83,7 +83,7 @@ public:
 	 */
 	int		start();
 
-	static int do_temperature_calibration(int argc, char *argv[]);
+	static void do_temperature_calibration(int argc, char *argv[]);
 
 	void		task_main();
 
@@ -107,10 +107,14 @@ TemperatureCalibration::TemperatureCalibration(bool accel, bool baro, bool gyro)
 {
 }
 
+TemperatureCalibration::~TemperatureCalibration()
+{
+}
+
 void TemperatureCalibration::task_main()
 {
 	// subscribe to all gyro instances
-	int gyro_sub[SENSOR_COUNT_MAX] = {};
+	int gyro_sub[SENSOR_COUNT_MAX];
 	px4_pollfd_struct_t fds[SENSOR_COUNT_MAX] = {};
 	unsigned num_gyro = orb_group_count(ORB_ID(sensor_gyro));
 
@@ -217,7 +221,7 @@ void TemperatureCalibration::task_main()
 		if (!_gyro) {
 			sensor_gyro_s gyro_data;
 
-			for (unsigned i = 0; i < num_gyro; ++i) {
+			for (int i = 0; i < num_gyro; ++i) {
 				orb_copy(ORB_ID(sensor_gyro), gyro_sub[i], &gyro_data);
 			}
 		}
@@ -227,13 +231,7 @@ void TemperatureCalibration::task_main()
 		for (int i = 0; i < num_calibrators; ++i) {
 			ret = calibrators[i]->update();
 
-			if (ret == -TC_ERROR_COMMUNICATION) {
-				abort_calibration = true;
-				PX4_ERR("Calibration won't start - sensor bad or communication error");
-				_force_task_exit = true;
-				break;
-
-			} else if (ret == -TC_ERROR_INITIAL_TEMP_TOO_HIGH) {
+			if (ret == -TC_ERROR_INITIAL_TEMP_TOO_HIGH) {
 				abort_calibration = true;
 				PX4_ERR("Calibration won't start - sensor temperature too high");
 				_force_task_exit = true;
@@ -320,15 +318,15 @@ void TemperatureCalibration::task_main()
 	PX4_INFO("Exiting temperature calibration task");
 }
 
-int TemperatureCalibration::do_temperature_calibration(int argc, char *argv[])
+void TemperatureCalibration::do_temperature_calibration(int argc, char *argv[])
 {
 	temperature_calibration::instance->task_main();
-	return 0;
 }
 
 int TemperatureCalibration::start()
 {
 
+	ASSERT(_control_task == -1);
 	_control_task = px4_task_spawn_cmd("temperature_calib",
 					   SCHED_DEFAULT,
 					   SCHED_PRIORITY_MAX - 5,

@@ -50,13 +50,14 @@
 #include <errno.h>
 #include <string>
 
-#include <perf/perf_counter.h>
+#include <systemlib/perf_counter.h>
 #include <systemlib/err.h>
 
 #include <drivers/drv_range_finder.h>
 #include <drivers/drv_hrt.h>
 
 #include <uORB/uORB.h>
+#include <uORB/topics/subsystem_info.h>
 #include <uORB/topics/distance_sensor.h>
 
 #include <board_config.h>
@@ -158,7 +159,7 @@ int DfBebopRangeFinderWrapper::_publish(struct bebop_range &data)
 
 	distance_data.id = 0; // TODO set proper ID
 
-	distance_data.orientation = distance_sensor_s::ROTATION_DOWNWARD_FACING;
+	distance_data.orientation = 25; // MAV_SENSOR_ROTATION_PITCH_270
 
 	distance_data.covariance = 1.0f; // TODO set correct value
 

@@ -39,14 +39,13 @@
 #pragma once
 
 #include <px4_posix.h>
-#include <px4_module_params.h>
+#include <uORB/topics/hil_sensor.h>
 #include <uORB/topics/manual_control_setpoint.h>
 #include <uORB/topics/actuator_outputs.h>
 #include <uORB/topics/vehicle_attitude.h>
 #include <uORB/topics/vehicle_global_position.h>
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/battery_status.h>
-#include <uORB/topics/irlock_report.h>
 #include <uORB/topics/parameter_update.h>
 #include <drivers/drv_accel.h>
 #include <drivers/drv_gyro.h>
@@ -54,14 +53,16 @@
 #include <drivers/drv_mag.h>
 #include <drivers/drv_hrt.h>
 #include <drivers/drv_rc_input.h>
-#include <perf/perf_counter.h>
-#include <battery/battery.h>
+#include <systemlib/perf_counter.h>
+#include <systemlib/battery.h>
+#include <controllib/blocks.hpp>
+#include <controllib/block/BlockParam.hpp>
 #include <uORB/uORB.h>
 #include <uORB/topics/optical_flow.h>
 #include <uORB/topics/distance_sensor.h>
-#include <v2.0/mavlink_types.h>
-#include <v2.0/common/mavlink.h>
-#include <lib/ecl/geo/geo.h>
+#include <v1.0/mavlink_types.h>
+#include <v1.0/common/mavlink.h>
+#include <geo/geo.h>
 namespace simulator
 {
 
@@ -99,6 +100,7 @@ struct RawMPUData {
 #pragma pack(push, 1)
 struct RawBaroData {
 	float pressure;
+	float altitude;
 	float temperature;
 };
 #pragma pack(pop)
@@ -140,7 +142,7 @@ public:
 		px4_sem_init(&_lock, 0, _max_readers);
 	}
 
-	~Report() {}
+	~Report() {};
 
 	bool copyData(void *outbuf, int len)
 	{
@@ -186,7 +188,7 @@ protected:
 
 };
 
-class Simulator : public ModuleParams
+class Simulator : public control::SuperBlock
 {
 public:
 	static Simulator *getInstance();
@@ -224,7 +226,7 @@ public:
 	bool isInitialized() { return _initialized; }
 
 private:
-	Simulator() : ModuleParams(nullptr),
+	Simulator() : SuperBlock(nullptr, "SIM"),
 		_accel(1),
 		_mpu(1),
 		_baro(1),
@@ -272,7 +274,8 @@ private:
 		_actuators{},
 		_attitude{},
 		_manual{},
-		_vehicle_status{}
+		_vehicle_status{},
+		_battery_drain_interval_s(this, "BAT_DRAIN")
 #endif
 	{
 		// We need to know the type for the correct mapping from
@@ -280,8 +283,7 @@ private:
 		param_t param_system_type = param_find("MAV_TYPE");
 		param_get(param_system_type, &_system_type);
 
-		for (unsigned i = 0; i < (sizeof(_actuator_outputs_sub) / sizeof(_actuator_outputs_sub[0])); i++)
-		{
+		for (unsigned i = 0; i < (sizeof(_actuator_outputs_sub) / sizeof(_actuator_outputs_sub[0])); i++) {
 			_actuator_outputs_sub[i] = -1;
 		}
 
@@ -291,8 +293,6 @@ private:
 		_gps.writeData(&gps_data);
 
 		_param_sub = orb_subscribe(ORB_ID(parameter_update));
-
-		_battery_status.timestamp = hrt_absolute_time();
 	}
 	~Simulator()
 	{
@@ -334,7 +334,6 @@ private:
 	orb_advert_t _vision_attitude_pub;
 	orb_advert_t _dist_pub;
 	orb_advert_t _battery_pub;
-	orb_advert_t _irlock_report_pub;
 
 	int				_param_sub;
 
@@ -345,7 +344,6 @@ private:
 
 	// Lib used to do the battery calculations.
 	Battery _battery;
-	battery_status_s _battery_status{};
 
 	// For param MAV_TYPE
 	int32_t _system_type;
@@ -384,9 +382,7 @@ private:
 	struct manual_control_setpoint_s _manual;
 	struct vehicle_status_s _vehicle_status;
 
-	DEFINE_PARAMETERS(
-		(ParamFloat<px4::params::SIM_BAT_DRAIN>) _battery_drain_interval_s ///< battery drain interval
-	)
+	control::BlockParamFloat _battery_drain_interval_s; ///< battery drain interval
 
 	void poll_topics();
 	void handle_message(mavlink_message_t *msg, bool publish);
@@ -394,7 +390,7 @@ private:
 	void pollForMAVLinkMessages(bool publish, int udp_port);
 
 	void pack_actuator_message(mavlink_hil_actuator_controls_t &actuator_msg, unsigned index);
-	void send_mavlink_message(const mavlink_message_t &aMsg);
+	void send_mavlink_message(const uint8_t msgid, const void *msg, uint8_t component_ID);
 	void update_sensors(mavlink_hil_sensor_t *imu);
 	void update_gps(mavlink_hil_gps_t *gps_sim);
 	void parameters_update(bool force);

@@ -116,7 +116,6 @@ public:
 
 	static int        unadvertise(orb_advert_t handle);
 
-#ifdef ORB_COMMUNICATOR
 	static int16_t topic_advertised(const orb_metadata *meta, int priority);
 	//static int16_t topic_unadvertised(const orb_metadata *meta, int priority);
 
@@ -156,14 +155,13 @@ public:
 	 *   the Subscriber to be removed.
 	 */
 	void remove_internal_subscriber();
-#endif /* ORB_COMMUNICATOR */
 
 	/**
 	 * Return true if this topic has been published.
 	 *
 	 * This is used in the case of multi_pub/sub to check if it's valid to advertise
 	 * and publish to this node or if another node should be tried. */
-	bool is_published() const { return _published; }
+	bool is_published();
 
 	/**
 	 * Try to change the size of the queue. This can only be done as long as nobody published yet.
@@ -186,8 +184,6 @@ public:
 	uint32_t lost_message_count() const { return _lost_messages; }
 	unsigned int published_message_count() const { return _generation; }
 	const struct orb_metadata *get_meta() const { return _meta; }
-
-	void set_priority(uint8_t priority) { _priority = priority; }
 
 protected:
 	virtual pollevent_t poll_state(device::file_t *filp);
@@ -216,21 +212,21 @@ private:
 	};
 
 	const struct orb_metadata *_meta; /**< object metadata information */
-	uint8_t     *_data{nullptr};   /**< allocated object buffer */
-	hrt_abstime   _last_update{0}; /**< time the object was last updated */
-	volatile unsigned   _generation{0};  /**< object generation count */
-	uint8_t   _priority;  /**< priority of the topic */
-	bool _published{false};  /**< has ever data been published */
+	uint8_t     *_data;   /**< allocated object buffer */
+	hrt_abstime   _last_update; /**< time the object was last updated */
+	volatile unsigned   _generation;  /**< object generation count */
+	const uint8_t   _priority;  /**< priority of the topic */
+	bool _published;  /**< has ever data been published */
 	uint8_t _queue_size; /**< maximum number of elements in the queue */
-	int16_t _subscriber_count{0};
+	int16_t _subscriber_count;
 
 	inline static SubscriberData    *filp_to_sd(device::file_t *filp);
 
 #ifdef __PX4_NUTTX
-	pid_t     _publisher {0}; /**< if nonzero, current publisher. Only used inside the advertise call.
+	pid_t     _publisher; /**< if nonzero, current publisher. Only used inside the advertise call.
 					We allow one publisher to have an open file descriptor at the same time. */
 #else
-	px4_task_t     _publisher {0}; /**< if nonzero, current publisher. Only used inside the advertise call.
+	px4_task_t     _publisher; /**< if nonzero, current publisher. Only used inside the advertise call.
 					We allow one publisher to have an open file descriptor at the same time. */
 #endif
 
@@ -300,8 +296,8 @@ public:
 
 private:
 	// Private constructor, uORB::Manager takes care of its creation
-	DeviceMaster();
-	virtual ~DeviceMaster() = default;
+	DeviceMaster(Flavor f);
+	virtual ~DeviceMaster();
 
 	struct DeviceNodeStatisticsData {
 		DeviceNode *node;
@@ -323,6 +319,8 @@ private:
 	 * @return node if exists, nullptr otherwise
 	 */
 	uORB::DeviceNode *getDeviceNodeLocked(const char *node_name);
+
+	const Flavor _flavor;
 
 #ifdef __PX4_NUTTX
 	ORBMap _node_map;

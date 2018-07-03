@@ -37,6 +37,6 @@ px4_add_module(
 	SRCS
 		tone_alarm.cpp
 	DEPENDS
-		git_driverframework
+		platforms__common
 	)
-
+# vim: set noet ft=cmake fenc=utf-8 ff=unix :
