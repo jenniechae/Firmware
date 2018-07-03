@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!nsh
 #
 # Standard apps for unmanned ground vehicles (UGV)
@@ -22,3 +23,29 @@ gnd_pos_control start
 # Start Land Detector
 #
 land_detector start ugv
+=======
+#!nsh
+#
+# Standard apps for unmanned ground vehicles (UGV)
+#
+
+#
+# Start the attitude and position estimator
+#
+ekf2 start
+#attitude_estimator_q start
+#local_position_estimator start
+
+
+#
+# Start attitude controllers
+#
+gnd_att_control start
+gnd_pos_control start
+
+
+#
+# Start Land Detector
+#
+land_detector start ugv
+>>>>>>> 36cf0556c72255e35a41db690190569461759b52
