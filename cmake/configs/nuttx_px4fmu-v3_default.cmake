@@ -1,5 +1,5 @@
 get_filename_component(DATA_DIR ${CMAKE_SOURCE_DIR} PATH)
-set(DATA_DIR ${DATA_DIR}/nuttx)
+set(DATA_DIR ${DATA_DIR}/cmake/nuttx)
 
 include(${DATA_DIR}/px4_impl_nuttx)
 
