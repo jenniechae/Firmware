@@ -7,10 +7,6 @@ list(REMOVE_ITEM config_module_list
 	)
 
 list(APPEND config_module_list
-
-	drivers/irlock
-
 	modules/attitude_estimator_q
 	modules/local_position_estimator
-	modules/landing_target_estimator
 	)

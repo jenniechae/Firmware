@@ -37,4 +37,6 @@ px4_add_module(
 	SRCS
 		px4_mavlink_debug.c
 	DEPENDS
+		platforms__common
 	)
+# vim: set noet ft=cmake fenc=utf-8 ff=unix : 

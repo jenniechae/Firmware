@@ -120,12 +120,25 @@ then
 	fi
 fi
 
-if ver hwcmp MINDPX_V2 CRAZYFLIE AEROFC_V1 PX4FMU_V4 NXPHLITE_V3 OMNIBUS_F4SD
+# This is a FMUv2+ thing
+
+#MindPX has not aux mixer
+if ver hwcmp MINDPX_V2
 then
 	set MIXER_AUX none
 fi
 
-if [ $USE_IO == no ]
+if ver hwcmp CRAZYFLIE
+then
+	set MIXER_AUX none
+fi
+
+if ver hwcmp AEROFC_V1
+then
+	set MIXER_AUX none
+fi
+
+if ver hwcmp PX4FMU_V5
 then
 	set MIXER_AUX none
 fi
@@ -155,7 +168,7 @@ then
 		if fmu mode_${AUX_MODE} $FMU_ARGS
 		then
 			# Append aux mixer to main device
-			if param compare SYS_HITL 1
+			if [ $OUTPUT_MODE == hil ]
 			then
 				if mixer append ${OUTPUT_DEV} ${MIXER_AUX_FILE}
 				then
